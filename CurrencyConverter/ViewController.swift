@@ -41,17 +41,36 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         pickerData = showCurrencyType
         
         // Placeholder for toCurrencyTextField
-        toCurrencyTextField.placeholder = "C$"
+        toCurrencyTextField.placeholder = "$"
     }
     
     @IBAction func convertButtonPressed(_ sender: Any) {
         guard let inputString = fromCurrencyTextField.text,
             let inputDouble = Double(inputString) else {
+                let alert = UIAlertController(title: "Sorry", message: "Numbers only please!", preferredStyle: .alert)
+                
+                alert.addAction(UIAlertAction(title: "Gotcha", style: .default, handler:  nil))
+                self.present(alert, animated: true)
+                
                 return
         }
         
         let convertNumber = convert(dollars: inputDouble, to: self.currencyType)
-        toCurrencyTextField.text = String(convertNumber)
+        
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .currency
+        
+        if self.currencyType == .cad || self.currencyType == .peso  {
+            numberFormatter.locale = Locale.current
+        } else if self.currencyType == .idr {
+            numberFormatter.locale = Locale(identifier: "id-ID")
+        } else {
+            numberFormatter.locale = Locale(identifier: "yue_CN")
+        }
+        
+       
+        toCurrencyTextField.text = numberFormatter.string(from: NSNumber(value: convertNumber))
+        
     }
     
     private func convert(dollars: Double, to unit: CurrencyType) -> Double {
@@ -86,16 +105,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         return pickerData[row]
     }
-    
-    // Custom font
-//    func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
-//        guard let label = view as? UILabel else {
-//            return
-//        }
-//        
-//        label.font = UIFont(name: "Futura", size: 1.0)
-//        return label.font
-//    }
     
     // Getting the selected value and change the placeholder text filed and label
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
